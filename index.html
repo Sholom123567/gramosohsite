@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>גרמתא - Premium Work</title>
+    
+    <!-- OPTIMIZATION 1: Preconnect for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- OPTIMIZATION 2: Non-blocking Font Loading (Faster initial render) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Hebrew:wght@100..900&family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+    
+    <!-- OPTIMIZATION 3: Defer non-critical scripts to prevent render blocking -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
+
+    <style>
+        /* CSS is kept inline for a single HTTP request, which is often fast for single-file apps */
+        
+        :root {
+            --gold-light: #FFD700;
+            --gold-dark: #B8860B;
+            --text-color: #1a1a1a;
+            --handwriting-font: 'Caveat', cursive; /* New font variable */
+        }
+        body {
+            /* Now using the link tags for font loading */
+            font-family: 'Inter', 'Noto Sans Hebrew', sans-serif;
+            background-color: #f5f5f5;
+            /* Custom Cursor Logic: Set 'cursor.png' as default (16x16px recommended) */
+            cursor: url('cursor.png'), auto; 
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Set windows hand cursor on interactive elements when hovering */
+        button:hover, a:hover, input:hover, textarea:hover, .flipping-button:hover, .review-card {
+            cursor: pointer; /* Use standard pointer on hover */
+        }
+
+        /* --- Hero Section & Background Fade Effect (The 'Drawing' Effect) --- */
+        #hero-section {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #background-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6) grayscale(0.2); 
+            transition: all 1s ease;
+        }
+        
+        /* --- VERY BIG LOGO AND INITIAL LIGHT STATE --- */
+        #logo-overlay {
+            position: absolute;
+            width: 80%; /* Larger percentage on mobile */
+            max-width: 700px;
+            height: auto;
+            opacity: 0;
+            filter: blur(10px) brightness(3.0) drop-shadow(0 0 10px rgba(0, 0, 0, 0.6)); 
+            transition: all 0.1s linear;
+            z-index: 10;
+        }
+        @media (min-width: 768px) {
+            #logo-overlay {
+                width: 60%; /* Smaller percentage on desktop */
+            }
+        }
+        /* ------------------------------------------- */
+
+        /* --- Gold Main Card --- */
+        #main-card {
+            background: linear-gradient(135deg, #FFEFBA 0%, #FFFFFF 50%, #FFEFBA 100%);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.5);
+            padding: 4rem 1rem 2rem; /* Adjusted padding for mobile */
+            margin: -10vh auto 4rem; 
+            max-width: 900px;
+            width: 95%; /* More fluid width for mobile */
+            border-radius: 2rem;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* --- Flipping Buttons Container (RESPONSIVE) --- */
+        #nav-buttons {
+            display: flex;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            gap: 1rem; /* Smaller gap on mobile */
+            width: 95%;
+            max-width: 600px;
+        }
+        @media (min-width: 768px) {
+            #nav-buttons {
+                gap: 2rem; /* Original gap on desktop */
+            }
+        }
+
+
+        /* --- Flipping Button Styles (RESPONSIVE) --- */
+        .flipping-button {
+            width: 90px; /* Small default size for mobile */
+            height: 90px;
+            border-radius: 50%;
+            perspective: 1000px;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .flip-front, .flip-back {
+             font-size: 0.75rem; /* Smaller text on mobile */
+        }
+        .flip-front i, .flip-back i {
+            font-size: 2rem; /* Smaller icon on mobile */
+        }
+        
+        @media (min-width: 640px) { /* sm breakpoint */
+            .flipping-button {
+                width: 120px;
+                height: 120px;
+            }
+            .flip-front, .flip-back {
+                font-size: 0.85rem;
+            }
+            .flip-front i, .flip-back i {
+                font-size: 3rem;
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .flipping-button {
+                width: 150px;
+                height: 150px;
+            }
+            .flip-front, .flip-back {
+                font-size: 0.9rem;
+            }
+            .flip-front i, .flip-back i {
+                font-size: 4rem;
+            }
+        }
+
+        .flip-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 50%;
+        }
+
+        .flipping-button:hover .flip-content {
+            transform: rotateY(180deg);
+        }
+
+        .flip-front, .flip-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            padding: 1rem;
+            font-weight: 700;
+            color: var(--text-color);
+            background: linear-gradient(45deg, var(--gold-light), #FFB830, var(--gold-dark));
+            border: 4px solid var(--gold-dark);
+        }
+
+        .flip-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(225deg, var(--gold-light), #FFB830, var(--gold-dark));
+            color: var(--text-color);
+        }
+
+        /* --- Top Bar --- */
+        #top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 1rem; /* Smaller padding on mobile */
+            transition: transform 0.3s ease;
+        }
+        #top-bar.hidden {
+            transform: translateY(-100%);
+        }
+
+        /* --- Footer (Image Content) (RESPONSIVE) --- */
+        #contact-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            /* NEW: Set fixed height for 'normal' footer size */
+            height: 120px; 
+            min-height: 120px;
+            
+            /* Hidden by default, slides up when 'visible' class is added */
+            transform: translateY(100%) rotateZ(-0.5deg); 
+            transition: transform 0.6s ease-out;
+            
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6), 0 -4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 40;
+            padding: 0; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Ensure image doesn't bleed */
+        }
+        
+        #contact-footer.visible {
+            transform: translateY(0) rotateZ(-0.5deg);
+        }
+        
+        /* Style for the new footer image */
+        #footer-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensure it covers the fixed height area */
+            display: block;
+            position: absolute; /* Allows text to be layered on top */
+            top: 0;
+            left: 0;
+            z-index: 1; /* Layer behind text */
+        }
+        
+        /* New styling for the contact text overlay */
+        .contact-text-overlay {
+            position: relative;
+            z-index: 2; /* Layer on top of the image */
+            font-family: var(--handwriting-font);
+            color: #ffffff; /* White text for contrast */
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            font-size: 1.5rem; /* Larger for mobile visibility */
+            padding: 0 1rem;
+            text-align: center;
+        }
+
+        @media (min-width: 640px) {
+            .contact-text-overlay {
+                font-size: 2.25rem; /* Larger font on desktop */
+            }
+        }
+
+
+        /* Remove old, now irrelevant text styles */
+        #contact-footer h3, #contact-footer p {
+            display: none;
+        }
+
+        /* --- Modal/Window Styles --- */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 1rem;
+            max-width: 95%; /* Wider on mobile */
+            width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        @media (min-width: 640px) {
+            .modal-content {
+                max-width: 600px;
+            }
+        }
+
+        /* --- Form Styles (RESPONSIVE) --- */
+        .form-input-group {
+            display: flex;
+            flex-direction: column; /* Stack vertically by default (mobile) */
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-input-field {
+            flex: 1 1 100%; /* Take full width on mobile */
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 640px) { /* sm breakpoint: switch to row layout */
+            .form-input-group {
+                flex-direction: row; 
+            }
+            .form-input-field {
+                flex: 1 1 45%; /* Two fields per row */
+            }
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            color: #555;
+            margin-bottom: 0.25rem;
+        }
+        .form-input, .form-select, .form-textarea {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.375rem;
+            transition: border-color 0.2s;
+            background-color: #fff;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            border-color: var(--gold-dark);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(184, 134, 11, 0.2);
+        }
+
+        /* --- Custom Styles for Carousel (RESPONSIVE) --- */
+        #image-container {
+            position: relative;
+            height: 300px; /* Default for mobile screens */
+            max-height: 80vh; /* Prevent excessive height on small screens */
+            width: 100%;
+            margin-top: 1rem;
+        }
+        @media (min-width: 640px) {
+            #image-container {
+                height: 400px; /* Tablet size */
+            }
+        }
+        @media (min-width: 768px) {
+            #image-container {
+                height: 500px; /* Desktop size */
+                margin-top: 2rem;
+            }
+        }
+        
+        #current-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* CRITICAL: Do not crop, show the full image */
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Style for the image-based navigation buttons */
+        .nav-button {
+            background-color: transparent;
+            border: none;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0.5rem; /* Add padding for a better click/touch target */
+            cursor: pointer;
+            z-index: 30;
+            /* Ensure the button itself is slightly visible/interactive */
+            transition: background-color 0.2s; 
+        }
+
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.5); /* Subtle background on hover */
+            border-radius: 9999px; /* Rounded corners */
+        }
+        
+        .nav-button img {
+             /* Set a small shadow on the image for visibility */
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+        }
+
+        .nav-button-left {
+            left: -10px; /* Closer to the edge on mobile */
+        }
+        
+        .nav-button-right {
+            right: -10px;
+        }
+        @media (min-width: 768px) {
+            .nav-button-left {
+                left: -20px;
+            }
+            .nav-button-right {
+                right: -20px;
+            }
+        }
+
+        /* Modal specific styles */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-body {
+            padding: 1rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .review-card {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            border: 1px solid #eee;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <header id="top-bar">
+        <div class="flex items-center space-x-2">
+
+            <img 
+                src="icon.png" 
+                alt="גרמתא Logo" 
+                class="h-8 w-8 object-contain shadow-md"
+            >
+            <h1 class="text-xl font-extrabold text-gray-800 tracking-wider">
+                <span class="border-b-4 border-black pb-1" dir="rtl">גרמתא</span>
+            </h1>
+            </div>
+    </header>
+
+    <main class="min-h-screen">
+        <section id="hero-section">
+            <!-- Ensure your images are compressed for web and are not excessively large -->
+            <img id="background-img" src="backround.png" alt="Luxury Background">
+            
+            <img id="logo-overlay" src="logo.png" alt="גרמתא Logo">
+        </section>
+
+        <section id="main-card">
+            <div id="nav-buttons">
+
+                <button id="btn-work" class="flipping-button" onclick="showContent('work')">
+                    <div class="flip-content">
+                        <div class="flip-front">
+                            <i class="ph-monitor-play-bold text-4xl mb-1 md:mb-2"></i>
+                            <span>Our Work</span>
+                        </div>
+                        <div class="flip-back">
+                            <i class="ph-palette-fill text-4xl mb-1 md:mb-2"></i>
+                            <span>Our Work</span>
+                        </div>
+                    </div>
+                </button>
+
+                <button id="btn-order" class="flipping-button" onclick="showContent('order')">
+                    <div class="flip-content">
+                        <div class="flip-front">
+                            <i class="ph-shopping-bag-open-bold text-4xl mb-1 md:mb-2"></i>
+                            <span>Order</span>
+                        </div>
+                        <div class="flip-back">
+                            <i class="ph-file-text-fill text-4xl mb-1 md:mb-2"></i>
+                            <span>Order</span>
+                        </div>
+                    </div>
+                </button>
+
+                <button id="btn-reviews" class="flipping-button" onclick="document.getElementById('reviews-modal').style.display='flex'; loadReviews()">
+                    <div class="flip-content">
+                        <div class="flip-front">
+                            <i class="ph-star-fill text-4xl mb-1 md:mb-2"></i>
+                            <span>Reviews</span>
+                        </div>
+                        <div class="flip-back">
+                            <i class="ph-chats-circle-fill text-4xl mb-1 md:mb-2"></i>
+                            <span>Reviews</span>
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <div class="pt-16 text-center">
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-yellow-700">Who Are We?</h2>
+                <p id="who-we-are" class="text-sm sm:text-base text-gray-700 leading-loose max-w-2xl mx-auto px-2">
+                   <strong>גרמתא</strong> is the address for <strong>גראמען,כתובות,מציבות</strong>,, where vision turns into tangible reality. We specialize in complex projects that require uncompromising precision, high-quality materials, and a luxurious finish. We believe that every project is a unique masterpiece, and we therefore pay attention to the smallest details, driven by a commitment to excellence. We invite you to view our portfolio and discover the highest standards of artistry and quality.
+                </p>
+            </div>
+        </section>
+
+        <section id="content-area" class="py-8 sm:py-12 px-2 sm:px-4 flex justify-center">
+
+            <div id="work-carousel" class="hidden max-w-4xl w-full text-center">
+                
+                <div id="image-container" class="relative w-full mx-auto max-w-3xl">
+                    <!-- The image is now the only content here, without extra padding/borders -->
+                    <img id="current-image" src="" alt="Work Sample Image">
+                    
+                    <div id="no-images-msg" class="absolute inset-0 flex items-center justify-center text-3xl font-extrabold text-gray-500 bg-gray-100 hidden">
+                        no images
+                    </div>
+                    
+                    <!-- Navigation buttons (UPDATED to use image files) -->
+                    
+                    <!-- Previous Image: changeImage(-1), positioned on the RIGHT, using rite.png -->
+                    <button onclick="changeImage(-1)" class="nav-button nav-button-right" title="Previous Image">
+                        <img src="rite.png" alt="Previous" class="w-8 h-8 md:w-12 md:h-12 object-contain">
+                    </button>
+                    
+                    <!-- Next Image: changeImage(1), positioned on the LEFT, using left.png -->
+                    <button onclick="changeImage(1)" class="nav-button nav-button-left" title="Next Image">
+                        <img src="left.png" alt="Next" class="w-8 h-8 md:w-12 md:h-12 object-contain">
+                    </button>
+                </div>
+
+                <div class="mt-6 sm:mt-8">
+                    <button onclick="showContent('order')" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-all shadow-xl shadow-yellow-500/50">
+                        Order Now <i class="ph-arrow-square-out-bold ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="order-form" class="hidden max-w-4xl w-full bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Order Your Products</h2>
+                <p class="text-gray-600 mb-6">What are you interested in buying?</p>
+
+                <form id="product-order-form">
+                    <!-- The form-input-group and form-input-field classes manage the responsive stacking -->
+                    <div class="form-input-group">
+                        <div class="form-input-field">
+                            <label class="form-label" for="firstName">First Name</label>
+                            <input class="form-input" id="firstName" type="text" placeholder="First Name" required>
+                        </div>
+                        <div class="form-input-field">
+                            <label class="form-label" for="lastName">Last Name</label>
+                            <input class="form-input" id="lastName" type="text" placeholder="Last Name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-input-group">
+                        <div class="form-input-field w-full min-w-full">
+                            <label class="form-label" for="email">Your Email</label>
+                            <input class="form-input" id="email" type="email" placeholder="example@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-input-group">
+                        <div class="form-input-field w-full min-w-full">
+                            <label class="form-label" for="billingAddress1">Billing Address</label>
+                            <input class="form-input" id="billingAddress1" type="text" placeholder="Street Address" required>
+                        </div>
+                    </div>
+
+                    <div class="form-input-group">
+                        <div class="form-input-field w-full min-w-full">
+                            <label class="form-label" for="billingAddress2">Address Line 2 (Optional)</label>
+                            <input class="form-input" id="billingAddress2" type="text" placeholder="Apartment, suite, etc.">
+                        </div>
+                    </div>
+
+                    <div class="form-input-group">
+                        <div class="form-input-field">
+                            <label class="form-label" for="city">City</label>
+                            <input class="form-input" id="city" type="text" required>
+                        </div>
+                        <div class="form-input-field">
+                            <label class="form-label" for="state">State / Province</label>
+                            <select class="form-select" id="state">
+                                <option>Please Select</option>
+                                <option>District 1</option>
+                                <option>District 2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-input-group">
+                        <div class="form-input-field">
+                            <label class="form-label" for="zip">Postal / Zip Code</label>
+                            <input class="form-input" id="zip" type="text" required>
+                        </div>
+                        <div class="form-input-field">
+                            <label class="form-label" for="country">Country</label>
+                            <input class="form-input" id="country" type="text" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="font-semibold text-gray-800 mb-2">Is shipping address the same as billing address?</p>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="shippingSame" value="Yes" class="form-radio text-yellow-600" checked>
+                                <span class="ml-2">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="shippingSame" value="No" class="form-radio text-yellow-600">
+                                <span class="ml-2">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="font-semibold text-gray-800 mb-2">Send as a Gift?</p>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="sendGift" value="Yes" class="form-radio text-yellow-600">
+                                <span class="ml-2">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="sendGift" value="No" class="form-radio text-yellow-600" checked>
+                                <span class="ml-2">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-input-group w-full min-w-full">
+                        <div class="form-input-field w-full min-w-full">
+                            <label class="form-label" for="instructions">Special Instructions:</label>
+                            <textarea class="form-textarea w-full" id="instructions" rows="4"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-6">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-12 rounded-lg transition-colors shadow-lg">
+                            Submit Order
+                        </button>
+                    </div>
+                </form>
+                <div id="form-message" class="mt-4 text-center hidden"></div>
+            </div>
+
+        </section>
+
+        <!-- Spacer element that creates the empty space and triggers the footer to slide up -->
+        <div id="footer-trigger-spacer" class="h-80 md:h-96 w-full"></div>
+
+    </main>
+
+    <!-- FOOTER: Fixed at bottom, slides up when spacer is reached -->
+    <footer id="contact-footer">
+        <!-- The image covers the background of the fixed footer height -->
+        <img id="footer-image" src="footer.png" alt="Contact Information Background Image">
+        
+        <!-- NEW: Contact text overlay -->
+        <div class="contact-text-overlay flex flex-col items-center justify-center space-y-1 sm:space-y-2">
+            <a href="tel:+972-50-1234567" class="hover:underline block">Phone: +972 50-123-4567</a>
+            <a href="mailto:contact@gramta.com" class="hover:underline block">Email: contact@gramta.com</a>
+        </div>
+    </footer>
+
+    <div id="reviews-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-xl sm:text-2xl">Reviews from Satisfied Customers</h3>
+                <button onclick="document.getElementById('reviews-modal').style.display='none'" class="text-gray-500 hover:text-gray-900">
+                    <i class="ph-x-circle-bold text-3xl"></i>
+                </button>
+            </div>
+            <div id="reviews-list-container" class="modal-body space-y-4">
+                <div id="reviews-list">
+                    <div class="text-center text-gray-500 py-4">Loading reviews...</div>
+                </div>
+            </div>
+            <div class="p-4 border-t flex flex-col items-center">
+                <button id="put-review-button" onclick="showReviewInput()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-all shadow-md">
+                    Write a New Review
+                </button>
+                <div id="review-input-form" class="mt-4 w-full hidden">
+                    <h4 class="font-semibold mb-2">Share Your Opinion:</h4>
+                    <input type="text" id="review-name" placeholder="Your Name" class="form-input w-full mb-2" required>
+                    <textarea id="review-text" placeholder="What did you think of our work?" class="form-textarea w-full mb-3" rows="3" required></textarea>
+                    <button onclick="submitReview()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-all">
+                        Submit Review
+                    </button>
+                    <div id="review-status" class="mt-2 text-sm text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPTIMIZATION 4: Main application script moved to the end of the body -->
+    <script type="module">
+        // Import Firebase components
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        let db, auth;
+        let userId = 'loading';
+        let isAuthReady = false;
+        let dynamicWorkData = [];
+        let isDataLoading = false;
+
+        // --- Global Variables (Mandatory Canvas Variables) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // --- CAROUSEL VARIABLES (MAX 50 IMAGES) ---
+        const IMAGE_COUNT = 50;
+        // The list of common extensions to check for each numbered image
+        const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp']; 
+        let currentImageIndex = 1; 
+        // -------------------------
+
+        /**
+         * 1. INITIALIZE FIREBASE & AUTH
+         */
+        async function initFirebaseAndAuth() {
+            if (!firebaseConfig) {
+                console.error("Firebase config is missing.");
+                return;
+            }
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                if (auth.currentUser) {
+                    userId = auth.currentUser.uid;
+                    isAuthReady = true;
+                    console.log("Firebase Auth Ready. User ID:", userId);
+                } else {
+                    console.error("Authentication failed.");
+                }
+            } catch (error) {
+                console.error("Error during Firebase initialization or authentication:", error);
+            }
+        }
+
+        /**
+         * 2. LOADER AND FADE EFFECTS
+         */
+        function startLogoFadeEffect() {
+            const logo = document.getElementById('logo-overlay');
+            let opacity = 0;
+            const interval = setInterval(() => {
+                if (opacity >= 1) {
+                    clearInterval(interval);
+                    // After the initial fade-in, keep the light source but reduce its intensity
+                    logo.style.filter = 'blur(0px) brightness(1.2) drop-shadow(0 0 10px rgba(0, 0, 0, 0.4))';
+                    return;
+                }
+                opacity += 0.02; // Slower fade-in
+                logo.style.opacity = opacity;
+            }, 50);
+        }
+
+        /**
+         * 3. CONTENT SWITCHING
+         */
+        function showContent(sectionId) {
+            // Hide all main content areas
+            document.getElementById('work-carousel').classList.add('hidden');
+            document.getElementById('order-form').classList.add('hidden');
+            document.getElementById('who-we-are').closest('div').classList.remove('hidden'); // Ensure Who Are We is visible by default
+
+            // Show the requested section
+            if (sectionId === 'work') {
+                document.getElementById('work-carousel').classList.remove('hidden');
+                document.getElementById('who-we-are').closest('div').classList.add('hidden'); // Hide default text when showing work
+                // Start the carousel logic when "Our Work" is pressed, starting the search from the current index
+                findNextValidImage(currentImageIndex, 1, true, currentImageIndex);
+            } else if (sectionId === 'order') {
+                document.getElementById('order-form').classList.remove('hidden');
+                document.getElementById('who-we-are').closest('div').classList.add('hidden'); // Hide default text when showing order
+            }
+        }
+        window.showContent = showContent;
+
+
+        /**
+         * 4. IMAGE CAROUSEL LOGIC
+         */
+        
+        // Helper function to check if an image path is valid
+        function checkImageExists(path) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                // To prevent caching issues during testing, you might add a cache buster, 
+                // but for production, this should suffice.
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = path;
+            });
+        }
+        
+        // Core recursive function to find the next valid image path
+        // This function searches sequentially until an image is found or the cycle completes (1-50)
+        async function findNextValidImage(index, direction, isNewSearch, initialStart) {
+            const imageEl = document.getElementById('current-image');
+            const msgEl = document.getElementById('no-images-msg');
+            const imageContainer = document.getElementById('image-container');
+
+            // Hide the image immediately for a smooth transition while searching
+            imageEl.style.opacity = '0';
+            msgEl.classList.add('hidden');
+
+            currentImageIndex = index;
+
+            // --- Full Cycle Detection ---
+            // If the search has wrapped back to the starting point and it's not the initial call,
+            // it means all 50 indices have been checked and failed.
+            if (!isNewSearch && currentImageIndex === initialStart) {
+                console.warn("No valid images found in the entire 1-50 range.");
+                imageEl.src = ''; // Clear image source
+                msgEl.classList.remove('hidden'); // Show "no images" message
+                return;
+            }
+            // --------------------------
+
+            // Try all common extensions for the current index
+            let foundPath = null;
+            for (const ext of IMAGE_EXTENSIONS) {
+                // Image path is always 'images/index.extension'
+                // NOTE: For testing, you must create a folder named 'images' 
+                // and place files like '1.jpg', '2.png', etc., inside it.
+                const path = `images/${currentImageIndex}.${ext}`;
+                const exists = await checkImageExists(path);
+                if (exists) {
+                    foundPath = path;
+                    break;
+                }
+            }
+
+            if (foundPath) {
+                // Image found: set the source and update opacity
+                imageEl.src = foundPath;
+                imageEl.onload = () => {
+                    imageEl.style.opacity = '1';
+                };
+            } else {
+                // Image not found, calculate the next index (with wrap-around)
+                let nextIndex = currentImageIndex + direction;
+                if (nextIndex < 1) nextIndex = IMAGE_COUNT; // Wrap 0 to 50
+                if (nextIndex > IMAGE_COUNT) nextIndex = 1;  // Wrap 51 to 1
+                
+                // Recursively call itself to search the next index (keep trying until found or full cycle completes). 
+                // The third argument is false, indicating we are continuing the search.
+                findNextValidImage(nextIndex, direction, false, initialStart);
+            }
+        }
+
+        // Main navigation function (exposed to HTML buttons)
+        async function changeImage(direction) {
+            // Calculate where to start the search from (the next position in the sequence)
+            let startIndex = currentImageIndex + direction;
+            if (startIndex < 1) startIndex = IMAGE_COUNT;
+            if (startIndex > IMAGE_COUNT) startIndex = 1;
+            
+            // Start the full search process from the calculated start index.
+            // The initialStart is used to detect if we check all 50 images.
+            await findNextValidImage(startIndex, direction, true, startIndex);
+        }
+
+        window.changeImage = changeImage;
+
+
+        /**
+         * 5. FIREBASE REVIEWS LOGIC
+         */
+        function showReviewInput() {
+            document.getElementById('review-input-form').classList.toggle('hidden');
+            document.getElementById('put-review-button').classList.toggle('hidden');
+        }
+        window.showReviewInput = showReviewInput;
+
+        async function submitReview() {
+            if (!isAuthReady) {
+                console.error("Authentication not ready. Cannot submit review.");
+                document.getElementById('review-status').innerText = "Error: Cannot submit, please try again.";
+                return;
+            }
+
+            const name = document.getElementById('review-name').value.trim();
+            const text = document.getElementById('review-text').value.trim();
+            const statusDiv = document.getElementById('review-status');
+
+            if (!name || !text) {
+                statusDiv.className = 'mt-2 text-sm text-center text-red-500';
+                statusDiv.innerText = "Please fill in both name and review text.";
+                return;
+            }
+
+            try {
+                // Store in the public collection path
+                const reviewsCollectionRef = collection(db, `artifacts/${appId}/public/data/reviews`);
+                
+                await addDoc(reviewsCollectionRef, {
+                    name: name,
+                    text: text,
+                    timestamp: serverTimestamp(),
+                    userId: userId,
+                });
+
+                document.getElementById('review-name').value = '';
+                document.getElementById('review-text').value = '';
+                document.getElementById('review-input-form').classList.add('hidden');
+                document.getElementById('put-review-button').classList.remove('hidden');
+                
+                statusDiv.className = 'mt-2 text-sm text-center text-green-500';
+                statusDiv.innerText = "Review submitted successfully! Thank you.";
+                
+                // Clear status message after a short delay
+                setTimeout(() => statusDiv.innerText = '', 3000);
+
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                statusDiv.className = 'mt-2 text-sm text-center text-red-500';
+                statusDiv.innerText = `Error submitting review: ${e.message}`;
+            }
+        }
+        window.submitReview = submitReview;
+
+        function loadReviews() {
+            if (!isAuthReady || isDataLoading) return;
+            isDataLoading = true;
+
+            const reviewsListDiv = document.getElementById('reviews-list');
+            reviewsListDiv.innerHTML = `<div class="text-center text-gray-500 py-4">Loading reviews...</div>`;
+
+            // Use onSnapshot for real-time updates
+            const reviewsCollectionRef = collection(db, `artifacts/${appId}/public/data/reviews`);
+            const q = query(reviewsCollectionRef); 
+
+            onSnapshot(q, (snapshot) => {
+                isDataLoading = false;
+                if (snapshot.empty) {
+                    reviewsListDiv.innerHTML = `<div class="text-center text-gray-500 py-4">No reviews yet. Be the first!</div>`;
+                    return;
+                }
+
+                let reviews = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Manually sort by timestamp in memory (descending)
+                    reviews.push({ id: doc.id, ...data });
+                });
+                
+                // In-memory sorting by timestamp (descending)
+                reviews.sort((a, b) => {
+                    const timeA = a.timestamp?.toMillis() || 0;
+                    const timeB = b.timestamp?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+
+
+                reviewsListDiv.innerHTML = reviews.map(review => {
+                    const dateStr = review.timestamp ? new Date(review.timestamp.toMillis()).toLocaleDateString() : 'N/A';
+                    return `
+                        <div class="review-card">
+                            <i class="ph-user-circle-fill text-2xl text-yellow-600 flex-shrink-0"></i>
+                            <div class="text-right w-full">
+                                <p class="font-bold text-gray-800">${review.name}</p>
+                                <p class="text-sm text-gray-500 mb-2">${dateStr}</p>
+                                <p class="text-gray-700 leading-relaxed">${review.text}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Autoscroll to top of modal when new data is loaded
+                const container = document.getElementById('reviews-list-container');
+                container.scrollTop = 0;
+
+            }, (error) => {
+                console.error("Error fetching reviews:", error);
+                reviewsListDiv.innerHTML = `<div class="text-center text-red-500 py-4">Error loading reviews: ${error.message}</div>`;
+            });
+        }
+        window.loadReviews = loadReviews;
+
+
+        /**
+         * 6. FOOTER SCROLL LOGIC
+         */
+        function setupFooterScrollObserver() {
+            const footer = document.getElementById('contact-footer');
+            const spacer = document.getElementById('footer-trigger-spacer');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    // The footer should only be visible when the spacer element is intersecting (i.e., visible on screen)
+                    if (entry.isIntersecting) {
+                        footer.classList.add('visible');
+                    } else {
+                        // Otherwise, hide it by sliding it back down
+                        footer.classList.remove('visible');
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '0px', // Trigger precisely when the spacer enters the viewport
+                threshold: 0.01 // Trigger with very minimal visibility
+            });
+
+            if (spacer) {
+                observer.observe(spacer);
+            }
+        }
+
+
+        // --- APPLICATION STARTUP ---
+        window.onload = function() {
+            initFirebaseAndAuth();
+            startLogoFadeEffect();
+            setupFooterScrollObserver(); 
+        };
+
+        // --- Form Submission Handler (Prevents actual submission) ---
+        document.getElementById('product-order-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formMessage = document.getElementById('form-message');
+            formMessage.classList.remove('hidden', 'text-red-500', 'text-green-500');
+            formMessage.classList.add('text-green-500');
+            formMessage.innerHTML = '<strong>Form submitted successfully!</strong> We will contact you soon. Thank you!';
+        });
+
+    </script>
+</body>
+</html>
